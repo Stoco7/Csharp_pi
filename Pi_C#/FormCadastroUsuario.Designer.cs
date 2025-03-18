@@ -221,7 +221,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(385, 384);
+			this.ClientSize = new System.Drawing.Size(384, 384);
 			this.Controls.Add(this.label10);
 			this.Controls.Add(this.dtpDataNascimento);
 			this.Controls.Add(this.btnCadastrar);
