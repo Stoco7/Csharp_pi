@@ -29,7 +29,7 @@ namespace Pi_C_
 
             byte[] imagemBytes = File.ReadAllBytes(caminhoImagem);
 
-            using (MySqlConnection conn = new MySqlConnection("server=localhost;user=root;database=teste_c#_pi;password=;"))
+            using (MySqlConnection conn = new MySqlConnection("server=localhost;user=root;database=CadastroPetDB;password=;"))
             {
                 try
                 {
