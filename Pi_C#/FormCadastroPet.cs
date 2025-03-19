@@ -14,37 +14,44 @@ namespace Pi_C_
 {
     public partial class FormCadastroPet : Form
     {
-        private int idUsuario;
+        private int id_dono;
         private string caminhoImagem = "";
 
         private void btnCadastrarPet_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtNomePet.Text) || cmbTipoAnimal.SelectedItem == null ||
                 cmbSexo.SelectedItem == null || string.IsNullOrWhiteSpace(txtPeso.Text) ||
-                string.IsNullOrWhiteSpace(txtIdade.Text) || string.IsNullOrWhiteSpace(caminhoImagem))
+                string.IsNullOrWhiteSpace(caminhoImagem))
             {
                 MessageBox.Show("Preencha todos os campos!", "Atenção", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
+            // Convertendo peso com validação
+            if (!decimal.TryParse(txtPeso.Text, out decimal peso))
+            {
+                MessageBox.Show("Peso inválido! Digite um valor numérico.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             byte[] imagemBytes = File.ReadAllBytes(caminhoImagem);
 
-            using (MySqlConnection conn = new MySqlConnection("server=localhost;user=root;database=CadastroPetDB;password=;"))
+            using (MySqlConnection conn = new MySqlConnection("server=localhost;user=root;database=petland_bd;password=;"))
             {
                 try
                 {
                     conn.Open();
-                    string query = "INSERT INTO Pets (idUsuario, nomePet, tipoAnimal, sexo, peso, idade, foto) " +
-                                   "VALUES (@idUsuario, @nomePet, @tipoAnimal, @sexo, @peso, @idade, @foto)";
+                    string query = "INSERT INTO pets_cadastrados (nome, tipo, sexo, peso, data_nascimento, imagem, id_dono) " +
+                                   "VALUES (@nome, @tipo, @sexo, @peso, @dataNascimento, @imagem, @id_dono)";
 
                     MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@idUsuario", idUsuario);
-                    cmd.Parameters.AddWithValue("@nomePet", txtNomePet.Text);
-                    cmd.Parameters.AddWithValue("@tipoAnimal", cmbTipoAnimal.SelectedItem.ToString());
+                    cmd.Parameters.AddWithValue("@nome", txtNomePet.Text);
+                    cmd.Parameters.AddWithValue("@tipo", cmbTipoAnimal.SelectedItem.ToString());
                     cmd.Parameters.AddWithValue("@sexo", cmbSexo.SelectedItem.ToString());
-                    cmd.Parameters.AddWithValue("@peso", Convert.ToDecimal(txtPeso.Text));
-                    cmd.Parameters.AddWithValue("@idade", Convert.ToInt32(txtIdade.Text));
-                    cmd.Parameters.AddWithValue("@foto", imagemBytes);
+                    cmd.Parameters.AddWithValue("@peso", peso);
+                    cmd.Parameters.AddWithValue("@dataNascimento", dtpDataNascimentopet.Value.Date);
+                    cmd.Parameters.AddWithValue("@imagem", imagemBytes);
+                    cmd.Parameters.AddWithValue("@id_dono", id_dono);
 
                     cmd.ExecuteNonQuery();
 
@@ -53,33 +60,46 @@ namespace Pi_C_
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Erro ao cadastrar pet: " + ex.Message);
+                    MessageBox.Show("Erro ao cadastrar pet: " + ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
         private void btnSelecionarFoto_Click(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "Arquivos de Imagem|*.jpg;*.jpeg;*.png;";
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                Filter = "Arquivos de Imagem|*.jpg;*.jpeg;*.png;"
+            };
+
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 caminhoImagem = ofd.FileName;
-                pbFotoPet.ImageLocation = caminhoImagem;
+                pbFotoPet.Image = Image.FromFile(caminhoImagem); // Exibe a imagem corretamente
             }
         }
 
         
-        public FormCadastroPet(int idUsuario)
+        public FormCadastroPet(int id_dono)
         {
             InitializeComponent();
-            this.idUsuario = idUsuario;
+            this.id_dono = id_dono;
 
             cmbTipoAnimal.Items.AddRange(new string[] { "Cachorro", "Gato", "Pássaro", "Peixe", "Outro" });
             cmbSexo.Items.AddRange(new string[] { "Macho", "Fêmea" });
         }
 
         private void FormCadastroPet_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cmbTipoAnimal_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dateTimePicker1_ValueChanged(object sender, EventArgs e)
         {
 
         }
